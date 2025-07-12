@@ -271,5 +271,10 @@ app.get('/reports', authRequired, (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on port ${PORT}`));
+// 🟢 首页跳转到登录页
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
 
+// 🟢 启动服务
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on port ${PORT}`));
