@@ -15,12 +15,11 @@ const PORT = process.env.PORT || 3000;
 
 // ========== CONFIG ==========
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));  // ✅ 加上这行，指定 views 目录
+app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layout');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 app.use(session({
   store: new SQLiteStore,
@@ -51,27 +50,26 @@ const transporter = nodemailer.createTransport({
 
 // ========== ROUTES ==========
 
-// LOGIN
 app.get('/login', (req, res) => res.render('login', { error: null, layout: false }));
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
-    if (err || !user) return res.render('login', { error: 'Invalid email' });
+    if (err || !user) return res.render('login', { error: 'Invalid email', layout: false });
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.render('login', { error: 'Wrong password' });
+    if (!match) return res.render('login', { error: 'Wrong password', layout: false });
     req.session.user = user;
     return res.redirect('/due-installments');
   });
 });
 
-// LOGOUT
 app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login'));
 });
 
-// REGISTER (ADMIN ONLY)
-app.get('/register', authRequired, adminOnly, (req, res) => res.render('register', { error: null }));
+app.get('/register', authRequired, adminOnly, (req, res) =>
+  res.render('register', { error: null, user: req.session.user })
+);
 
 app.post('/register', authRequired, adminOnly, async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -79,52 +77,60 @@ app.post('/register', authRequired, adminOnly, async (req, res) => {
   db.run(`INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`,
     [username, email, hashed, role || 'staff'],
     err => {
-      if (err) return res.render('register', { error: 'Email exists' });
+      if (err) return res.render('register', { error: 'Email exists', user: req.session.user });
       res.redirect('/users');
     });
 });
 
-// FORGOT PASSWORD
-app.get('/forgot-password', (req, res) => res.render('forgot-password', { error: null, success: null }));
+app.get('/forgot-password', (req, res) =>
+  res.render('forgot-password', { error: null, success: null, layout: false })
+);
 
 app.post('/forgot-password', (req, res) => {
   const { email } = req.body;
   const newPass = crypto.randomBytes(4).toString('hex');
   bcrypt.hash(newPass, 10, (err, hashed) => {
     db.run(`UPDATE users SET password = ? WHERE email = ?`, [hashed, email], function (err2) {
-      if (err2 || this.changes === 0) return res.render('forgot-password', { error: 'Email not found', success: null });
+      if (err2 || this.changes === 0)
+        return res.render('forgot-password', { error: 'Email not found', success: null, layout: false });
+
       transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset',
         text: `Your new password: ${newPass}`
       }, (err3) => {
-        if (err3) return res.render('forgot-password', { error: 'Mail error', success: null });
-        res.render('forgot-password', { error: null, success: 'New password sent to email' });
+        if (err3)
+          return res.render('forgot-password', { error: 'Mail error', success: null, layout: false });
+
+        res.render('forgot-password', { error: null, success: 'New password sent to email', layout: false });
       });
     });
   });
 });
 
-// CHANGE PASSWORD
-app.get('/change-password', authRequired, (req, res) => res.render('change-password', { error: null, success: null }));
+app.get('/change-password', authRequired, (req, res) =>
+  res.render('change-password', { error: null, success: null, user: req.session.user })
+);
 
 app.post('/change-password', authRequired, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const user = req.session.user;
   const match = await bcrypt.compare(oldPassword, user.password);
-  if (!match) return res.render('change-password', { error: 'Wrong current password', success: null });
+  if (!match)
+    return res.render('change-password', { error: 'Wrong current password', success: null, user });
 
   const hashed = await bcrypt.hash(newPassword, 10);
   db.run(`UPDATE users SET password = ? WHERE id = ?`, [hashed, user.id], err => {
-    if (err) return res.render('change-password', { error: 'Update error', success: null });
+    if (err)
+      return res.render('change-password', { error: 'Update error', success: null, user });
+
     db.run(`INSERT INTO password_logs (user_id, changed_at) VALUES (?, datetime('now'))`, [user.id]);
     req.session.user.password = hashed;
-    res.render('change-password', { error: null, success: 'Password changed' });
+    res.render('change-password', { error: null, success: 'Password changed', user });
   });
 });
 
-// DUE INSTALLMENTS
 app.get('/due-installments', authRequired, (req, res) => {
   db.all(`
     SELECT loans.*, customers.name AS customer_name
@@ -133,14 +139,13 @@ app.get('/due-installments', authRequired, (req, res) => {
     WHERE date(loans.due_date) >= date('now')
     ORDER BY loans.due_date ASC
   `, [], (err, rows) => {
-    res.render('due-installments', { loans: rows });
+    res.render('due-installments', { loans: rows, user: req.session.user });
   });
 });
 
-// NEW LOAN
 app.get('/loan/add', authRequired, adminOnly, (req, res) => {
   db.all(`SELECT * FROM customers`, [], (err, customers) => {
-    res.render('new-loan', { customers });
+    res.render('new-loan', { customers, user: req.session.user });
   });
 });
 
@@ -164,10 +169,9 @@ app.post('/loan/add', authRequired, adminOnly, (req, res) => {
   res.redirect('/due-installments');
 });
 
-// SEARCH
-app.get('/search', authRequired, (req, res) => {
-  res.render('search', { results: null });
-});
+app.get('/search', authRequired, (req, res) =>
+  res.render('search', { results: null, user: req.session.user })
+);
 
 app.post('/search', authRequired, (req, res) => {
   const term = `%${req.body.term}%`;
@@ -178,14 +182,13 @@ app.post('/search', authRequired, (req, res) => {
     WHERE customers.name LIKE ? OR customers.id LIKE ?
     ORDER BY loans.due_date ASC
   `, [term, term], (err, rows) => {
-    res.render('search', { results: rows });
+    res.render('search', { results: rows, user: req.session.user });
   });
 });
 
-// CUSTOMERS
 app.get('/customers', authRequired, (req, res) => {
   db.all(`SELECT * FROM customers`, [], (err, rows) => {
-    res.render('customers', { customers: rows });
+    res.render('customers', { customers: rows, user: req.session.user });
   });
 });
 
@@ -196,21 +199,19 @@ app.post('/customers', authRequired, (req, res) => {
   });
 });
 
-// SYSTEM USERS
 app.get('/users', authRequired, adminOnly, (req, res) => {
   db.all(`SELECT * FROM users`, [], (err, users) => {
-    res.render('users', { users });
+    res.render('users', { users, user: req.session.user });
   });
 });
 
-// ADVANCE MONEY
 app.get('/advance-money', authRequired, (req, res) => {
   db.all(`
     SELECT advance_money.*, customers.name AS customer_name
     FROM advance_money
     JOIN customers ON advance_money.customer_id = customers.id
   `, [], (err, rows) => {
-    res.render('advance-money', { advances: rows });
+    res.render('advance-money', { advances: rows, user: req.session.user });
   });
 });
 
@@ -223,14 +224,13 @@ app.post('/advance-money', authRequired, (req, res) => {
   });
 });
 
-// MONEY COLLECTION
 app.get('/money-collection', authRequired, (req, res) => {
   db.all(`
     SELECT loans.id AS loan_id, loans.amount, loans.collected_amount, customers.name AS customer_name
     FROM loans
     JOIN customers ON loans.customer_id = customers.id
   `, [], (err, rows) => {
-    res.render('money-collection', { loans: rows });
+    res.render('money-collection', { loans: rows, user: req.session.user });
   });
 });
 
@@ -245,10 +245,9 @@ app.post('/money-collection', authRequired, (req, res) => {
     });
 });
 
-// EXPENSES
 app.get('/expenses', authRequired, (req, res) => {
   db.all(`SELECT * FROM expenses ORDER BY date DESC`, [], (err, rows) => {
-    res.render('expenses', { expenses: rows });
+    res.render('expenses', { expenses: rows, user: req.session.user });
   });
 });
 
@@ -258,7 +257,6 @@ app.post('/expenses', authRequired, (req, res) => {
     [name, amount, date, remarks], () => res.redirect('/expenses'));
 });
 
-// REPORTS
 app.get('/reports', authRequired, (req, res) => {
   db.all(`SELECT SUM(amount) as total_loan FROM loans`, [], (err1, loans) => {
     db.all(`SELECT SUM(amount) as total_collected FROM money_collection`, [], (err2, collections) => {
@@ -266,17 +264,16 @@ app.get('/reports', authRequired, (req, res) => {
         res.render('reports', {
           total_loan: loans[0].total_loan || 0,
           total_collected: collections[0].total_collected || 0,
-          total_expenses: expenses[0].total_expenses || 0
+          total_expenses: expenses[0].total_expenses || 0,
+          user: req.session.user
         });
       });
     });
   });
 });
 
-// 🟢 首页跳转到登录页
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
-// 🟢 启动服务
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on port ${PORT}`));
