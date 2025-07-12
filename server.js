@@ -52,7 +52,7 @@ const transporter = nodemailer.createTransport({
 // ========== ROUTES ==========
 
 // LOGIN
-app.get('/login', (req, res) => res.render('login', { error: null }));
+app.get('/login', (req, res) => res.render('login', { error: null, layout: false }));
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
