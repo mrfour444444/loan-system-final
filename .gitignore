@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Env
+.env
+
+# Database backups
+*.sqlite3-journal
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
