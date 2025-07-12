@@ -5,16 +5,102 @@
   <title>Login - Loan System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body {
+      background-color: #eaf4ff;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .checkbox-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .forgot-link {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .alert-error {
+      background-color: #ffe0e0;
+      color: #c00;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="login-body">
+<body>
   <div class="login-container">
     <div class="login-box">
-      <div class="login-header">
-        <h2>Loan Management System</h2>
-      </div>
+      <h2>Loan Management System</h2>
+
       <% if (error) { %>
         <div class="alert-error"><%= error %></div>
       <% } %>
+
       <form action="/login" method="POST">
         <div class="form-group">
           <label for="email">Email</label>
