@@ -1,0 +1,42 @@
+<h2 class="page-title">Advance Money</h2>
+
+<div class="form-inline">
+  <form action="/advance-money" method="POST" class="add-form">
+    <select name="customer_id" required>
+      <% advances.forEach(row => { %>
+        <% if (!row.added) { %>
+          <option value="<%= row.customer_id %>"><%= row.customer_name %></option>
+        <% } %>
+      <% }) %>
+    </select>
+    <input type="number" name="amount" step="0.01" placeholder="Amount" required />
+    <input type="date" name="date" required />
+    <input type="text" name="remarks" placeholder="Remarks (optional)" />
+    <button type="submit" class="btn-primary">Add</button>
+  </form>
+</div>
+
+<div class="table-container">
+  <table class="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% advances.forEach(row => { %>
+        <tr>
+          <td><%= row.id %></td>
+          <td><%= row.customer_name %></td>
+          <td><%= row.amount.toFixed(2) %></td>
+          <td><%= row.date %></td>
+          <td><%= row.remarks || '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

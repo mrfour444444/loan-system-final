@@ -1,0 +1,38 @@
+<h2 class="page-title">Due Installments</h2>
+
+<div class="table-container">
+  <table class="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Agent</th>
+        <th>Collector</th>
+        <th>Loan Date</th>
+        <th>Due Date</th>
+        <th>Purpose</th>
+        <th>Sequence No.</th>
+        <th>Amount</th>
+        <th>Collected</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% loans.forEach(loan => { %>
+        <tr>
+          <td><%= loan.id %></td>
+          <td><%= loan.customer_name %></td>
+          <td><%= loan.agent %></td>
+          <td><%= loan.collector %></td>
+          <td><%= loan.loan_date %></td>
+          <td><%= loan.due_date %></td>
+          <td><%= loan.purpose %></td>
+          <td><%= loan.sequence_no %></td>
+          <td><%= loan.amount.toFixed(2) %></td>
+          <td><%= loan.collected_amount?.toFixed(2) || '0.00' %></td>
+          <td><%= loan.remarks %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

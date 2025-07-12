@@ -1,0 +1,47 @@
+<h2 class="page-title">Search Customer Loans</h2>
+
+<div class="form-inline">
+  <form action="/search" method="POST" class="search-form">
+    <input type="text" name="term" placeholder="Enter Customer Name or ID" required />
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+</div>
+
+<% if (results) { %>
+  <div class="table-container">
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Customer</th>
+          <th>Agent</th>
+          <th>Collector</th>
+          <th>Loan Date</th>
+          <th>Due Date</th>
+          <th>Purpose</th>
+          <th>Sequence No.</th>
+          <th>Amount</th>
+          <th>Collected</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% results.forEach(row => { %>
+          <tr>
+            <td><%= row.id %></td>
+            <td><%= row.customer_name %></td>
+            <td><%= row.agent %></td>
+            <td><%= row.collector %></td>
+            <td><%= row.loan_date %></td>
+            <td><%= row.due_date %></td>
+            <td><%= row.purpose %></td>
+            <td><%= row.sequence_no %></td>
+            <td><%= row.amount.toFixed(2) %></td>
+            <td><%= row.collected_amount?.toFixed(2) || '0.00' %></td>
+            <td><%= row.remarks %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

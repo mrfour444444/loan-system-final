@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register - Loan System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="login-body">
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <h2>Create New User</h2>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert-error"><%= error %></div>
+      <% } %>
+
+      <form action="/register" method="POST">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" name="username" id="username" placeholder="Enter username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" placeholder="Enter email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" placeholder="Enter password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select name="role" id="role" required>
+            <option value="staff" selected>Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn-primary">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

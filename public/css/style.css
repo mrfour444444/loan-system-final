@@ -1,0 +1,281 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+
+h2.page-title {
+  margin: 20px 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: #263238;
+  color: #fff;
+  padding-top: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #444;
+  margin-bottom: 10px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  padding: 10px 20px;
+}
+
+.sidebar-menu li a {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+}
+
+.sidebar-menu li a:hover {
+  background-color: #455a64;
+}
+
+/* Topbar */
+.topbar {
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-left select {
+  padding: 5px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info {
+  font-weight: bold;
+  color: #333;
+}
+
+.user-circle {
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  min-width: 140px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 8px 12px;
+  display: block;
+  text-decoration: none;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+.content {
+  margin-top: 20px;
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+table.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.dataTable th,
+table.dataTable td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.form-grid .form-group {
+  flex: 1 1 250px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-primary {
+  background-color: #2196f3;
+  color: #fff;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #1976d2;
+}
+
+.alert-error {
+  background-color: #ffcccc;
+  color: #a00;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.alert-success {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Login/Password pages */
+.login-body {
+  background-color: #e3f2fd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-box {
+  background-color: #fff;
+  padding: 30px 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.login-header h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.checkbox-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgot-link,
+.back-link {
+  font-size: 13px;
+  color: #2196f3;
+  text-decoration: none;
+}
+
+.forgot-link:hover,
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.add-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-form input,
+.add-form select {
+  flex: 1;
+  min-width: 180px;
+}
+
+.form-inline {
+  margin-bottom: 20px;
+}
+
+.installment-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.installment-row label {
+  width: 180px;
+  font-size: 14px;
+}

@@ -1,0 +1,103 @@
+<h2 class="page-title">Add New Loan</h2>
+
+<form action="/loan/add" method="POST" id="loanForm">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="customer_id">Customer</label>
+      <select name="customer_id" id="customer_id" required>
+        <% customers.forEach(c => { %>
+          <option value="<%= c.id %>"><%= c.name %> (#<%= c.id %>)</option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="agent">Agent</label>
+      <input type="text" name="agent" id="agent" required />
+    </div>
+
+    <div class="form-group">
+      <label for="collector">Loan Collector</label>
+      <input type="text" name="collector" id="collector" required />
+    </div>
+
+    <div class="form-group">
+      <label for="loan_date">Loan Issue Date</label>
+      <input type="date" name="loan_date" id="loan_date" required />
+    </div>
+
+    <div class="form-group">
+      <label for="purpose">Loan Purpose</label>
+      <input type="text" name="purpose" id="purpose" required />
+    </div>
+
+    <div class="form-group">
+      <label for="remarks">Remarks</label>
+      <input type="text" name="remarks" id="remarks" />
+    </div>
+
+    <div class="form-group">
+      <label for="installment_count">Installments</label>
+      <input type="number" id="installment_count" name="installment_count" min="1" value="1" required />
+    </div>
+
+    <div class="form-group">
+      <label for="sequence_days">Interval Days</label>
+      <input type="number" id="sequence_days" name="sequence_days" min="1" value="7" required />
+    </div>
+  </div>
+
+  <div id="installments-section">
+    <h3>Installment Details</h3>
+    <div id="installments"></div>
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn-primary">Submit Loan</button>
+  </div>
+</form>
+
+<script>
+  function generateInstallments() {
+    const count = parseInt(document.getElementById('installment_count').value);
+    const interval = parseInt(document.getElementById('sequence_days').value);
+    const loanDate = document.getElementById('loan_date').value;
+
+    const container = document.getElementById('installments');
+    container.innerHTML = '';
+
+    for (let i = 0; i < count; i++) {
+      const div = document.createElement('div');
+      div.className = 'installment-row';
+
+      const dueDateLabel = document.createElement('label');
+      dueDateLabel.textContent = `Due Date (Installment ${i + 1})`;
+
+      const dueDateInput = document.createElement('input');
+      dueDateInput.type = 'date';
+      dueDateInput.name = 'due_dates';
+      dueDateInput.required = true;
+
+      const amountLabel = document.createElement('label');
+      amountLabel.textContent = `Amount (Installment ${i + 1})`;
+
+      const amountInput = document.createElement('input');
+      amountInput.type = 'number';
+      amountInput.name = 'amounts';
+      amountInput.step = '0.01';
+      amountInput.required = true;
+
+      div.appendChild(dueDateLabel);
+      div.appendChild(dueDateInput);
+      div.appendChild(amountLabel);
+      div.appendChild(amountInput);
+
+      container.appendChild(div);
+    }
+  }
+
+  document.getElementById('installment_count').addEventListener('change', generateInstallments);
+  document.getElementById('sequence_days').addEventListener('change', generateInstallments);
+  document.getElementById('loan_date').addEventListener('change', generateInstallments);
+  window.onload = generateInstallments;
+</script>

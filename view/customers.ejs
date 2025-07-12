@@ -1,0 +1,33 @@
+<h2 class="page-title">Customer List</h2>
+
+<div class="form-inline">
+  <form action="/customers" method="POST" class="add-form">
+    <input type="text" name="name" placeholder="Customer Name" required />
+    <input type="email" name="email" placeholder="Email" />
+    <input type="text" name="phone" placeholder="Phone" />
+    <button type="submit" class="btn-primary">Add Customer</button>
+  </form>
+</div>
+
+<div class="table-container">
+  <table class="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% customers.forEach(c => { %>
+        <tr>
+          <td><%= c.id %></td>
+          <td><%= c.name %></td>
+          <td><%= c.email || '-' %></td>
+          <td><%= c.phone || '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

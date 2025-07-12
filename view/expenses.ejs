@@ -1,0 +1,36 @@
+<h2 class="page-title">Expenses</h2>
+
+<div class="form-inline">
+  <form action="/expenses" method="POST" class="add-form">
+    <input type="text" name="name" placeholder="Expense Name" required />
+    <input type="number" name="amount" step="0.01" placeholder="Amount" required />
+    <input type="date" name="date" required />
+    <input type="text" name="remarks" placeholder="Remarks (optional)" />
+    <button type="submit" class="btn-primary">Add Expense</button>
+  </form>
+</div>
+
+<div class="table-container">
+  <table class="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% expenses.forEach(e => { %>
+        <tr>
+          <td><%= e.id %></td>
+          <td><%= e.name %></td>
+          <td><%= e.amount.toFixed(2) %></td>
+          <td><%= e.date %></td>
+          <td><%= e.remarks || '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
