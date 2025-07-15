@@ -19,9 +19,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// 设置 session
+// 设置 session（30分钟自动过期）
 app.use(session({
-  store: new SQLiteStore,
+  store: new SQLiteStore(),
   secret: 'loan_secret',
   resave: false,
   saveUninitialized: false,
@@ -30,7 +30,7 @@ app.use(session({
   }
 }));
 
-// 设置 CSRF
+// 启用 CSRF 保护
 app.use(csrf());
 
 // 设置语言
@@ -41,12 +41,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// 权限控制中间件
+// 权限中间件
 function authRequired(req, res, next) {
   if (!req.session.user) return res.redirect('/login');
   next();
 }
-
 function adminOnly(req, res, next) {
   if (!req.session.user || req.session.user.role !== 'admin') {
     return res.redirect('/');
@@ -56,25 +55,39 @@ function adminOnly(req, res, next) {
 
 // 登录页面
 app.get('/login', (req, res) => {
-  res.render('login', {
-    error: null,
-    lang: req.session.lang
-  });
+  res.render('login', { error: null, lang: req.session.lang });
 });
 
-// 登录逻辑
+// 登录尝试限制（基于 IP）
+const loginAttempts = {};
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  const ip = req.ip;
+
+  if (!loginAttempts[ip]) loginAttempts[ip] = { count: 0, lastAttempt: Date.now() };
+
+  if (loginAttempts[ip].count >= 5 && Date.now() - loginAttempts[ip].lastAttempt < 15 * 60 * 1000) {
+    return res.render('login', {
+      error: 'Too many login attempts. Please try again after 15 minutes.',
+      lang: req.session.lang
+    });
+  }
+
   const user = await get('SELECT * FROM users WHERE email = ?', [email]);
   if (!user) {
+    loginAttempts[ip].count++;
+    loginAttempts[ip].lastAttempt = Date.now();
     return res.render('login', { error: 'User not found', lang: req.session.lang });
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
+    loginAttempts[ip].count++;
+    loginAttempts[ip].lastAttempt = Date.now();
     return res.render('login', { error: 'Incorrect password', lang: req.session.lang });
   }
 
+  loginAttempts[ip] = { count: 0, lastAttempt: 0 }; // 重置
   req.session.user = user;
   res.redirect('/due-installments');
 });
@@ -84,12 +97,10 @@ app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login'));
 });
 
-// 注册页面（仅管理员可访问）
+// 注册页面
 app.get('/register', adminOnly, (req, res) => {
   res.render('register', { error: null, message: null, lang: req.session.lang });
 });
-
-// 注册逻辑
 app.post('/register', adminOnly, async (req, res) => {
   const { username, email, password, role } = req.body;
   const hash = await bcrypt.hash(password, 10);
@@ -102,12 +113,10 @@ app.post('/register', adminOnly, async (req, res) => {
   }
 });
 
-// 忘记密码页面
+// 忘记密码
 app.get('/forgot-password', (req, res) => {
   res.render('forgot-password', { message: null, error: null, lang: req.session.lang });
 });
-
-// 忘记密码逻辑（发送新密码）
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   const user = await get('SELECT * FROM users WHERE email = ?', [email]);
@@ -119,7 +128,6 @@ app.post('/forgot-password', async (req, res) => {
   const hashed = await bcrypt.hash(newPassword, 10);
   await run('UPDATE users SET password = ? WHERE email = ?', [hashed, email]);
 
-  // 发送邮件
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -143,7 +151,7 @@ app.post('/forgot-password', async (req, res) => {
   });
 });
 
-// 修改密码页面
+// 修改密码
 app.get('/change-password', authRequired, (req, res) => {
   res.render('change-password', {
     message: null,
@@ -152,8 +160,6 @@ app.get('/change-password', authRequired, (req, res) => {
     lang: req.session.lang
   });
 });
-
-// 修改密码逻辑
 app.post('/change-password', authRequired, async (req, res) => {
   const { current_password, new_password, confirm_password } = req.body;
   const user = await get('SELECT * FROM users WHERE id = ?', [req.session.user.id]);
@@ -161,7 +167,6 @@ app.post('/change-password', authRequired, async (req, res) => {
   if (!await bcrypt.compare(current_password, user.password)) {
     return res.render('change-password', { error: 'Incorrect current password', message: null, csrfToken: req.csrfToken(), lang: req.session.lang });
   }
-
   if (new_password !== confirm_password) {
     return res.render('change-password', { error: 'Passwords do not match', message: null, csrfToken: req.csrfToken(), lang: req.session.lang });
   }
@@ -173,12 +178,12 @@ app.post('/change-password', authRequired, async (req, res) => {
   res.render('change-password', { message: 'Password updated', error: null, csrfToken: req.csrfToken(), lang: req.session.lang });
 });
 
-// 首页跳转
+// 首页重定向
 app.get('/', authRequired, (req, res) => {
   res.redirect('/due-installments');
 });
 
-// Due Installments 页面
+// 各功能页面
 app.get('/due-installments', authRequired, async (req, res) => {
   const loans = await all(`
     SELECT l.*, c.name AS customer_name
@@ -186,15 +191,9 @@ app.get('/due-installments', authRequired, async (req, res) => {
     JOIN customers c ON l.customer_id = c.id
     ORDER BY l.due_date ASC
   `);
-  res.render('due-installments', {
-    loans,
-    user: req.session.user,
-    lang: req.session.lang,
-    message: req.session.message
-  });
+  res.render('due-installments', { loans, user: req.session.user, lang: req.session.lang });
 });
 
-// Loan 页面（管理员查看所有贷款）
 app.get('/loan', adminOnly, async (req, res) => {
   const loans = await all(`
     SELECT DISTINCT l.loan_id AS id,
@@ -208,59 +207,32 @@ app.get('/loan', adminOnly, async (req, res) => {
     JOIN customers c ON l.customer_id = c.id
     ORDER BY l.loan_issue_date DESC
   `);
-  res.render('loan', {
-    loans,
-    user: req.session.user,
-    lang: req.session.lang,
-    message: req.session.message
-  });
+  res.render('loan', { loans, user: req.session.user, lang: req.session.lang });
 });
 
-// Search 页面
 app.get('/search', authRequired, (req, res) => {
-  res.render('search', {
-    user: req.session.user,
-    lang: req.session.lang,
-    message: req.session.message
-  });
+  res.render('search', { user: req.session.user, lang: req.session.lang });
 });
 
-// Customers 页面
 app.get('/customers', authRequired, async (req, res) => {
   const customers = await all('SELECT * FROM customers ORDER BY name ASC');
-  res.render('customers', {
-    customers,
-    user: req.session.user,
-    lang: req.session.lang,
-    message: req.session.message
-  });
+  res.render('customers', { customers, user: req.session.user, lang: req.session.lang });
 });
 
-// Advance Money 页面
 app.get('/advance-money', authRequired, async (req, res) => {
   const records = await all(`
     SELECT a.*, u.username FROM advance_money a
     JOIN users u ON a.user_id = u.id
     ORDER BY a.date DESC
   `);
-  res.render('advance-money', {
-    records,
-    user: req.session.user,
-    lang: req.session.lang
-  });
+  res.render('advance-money', { records, user: req.session.user, lang: req.session.lang });
 });
 
-// Expenses 页面
 app.get('/expenses', authRequired, async (req, res) => {
   const expenses = await all('SELECT * FROM expenses ORDER BY date DESC');
-  res.render('expenses', {
-    expenses,
-    user: req.session.user,
-    lang: req.session.lang
-  });
+  res.render('expenses', { expenses, user: req.session.user, lang: req.session.lang });
 });
 
-// Money Collection 页面
 app.get('/money-collection', authRequired, async (req, res) => {
   const collections = await all(`
     SELECT m.*, l.loan_id, c.name AS customer_name
@@ -269,19 +241,13 @@ app.get('/money-collection', authRequired, async (req, res) => {
     JOIN customers c ON l.customer_id = c.id
     ORDER BY m.date DESC
   `);
-  res.render('money-collection', {
-    collections,
-    user: req.session.user,
-    lang: req.session.lang
-  });
+  res.render('money-collection', { collections, user: req.session.user, lang: req.session.lang });
 });
 
-// Reports 页面
 app.get('/reports', authRequired, async (req, res) => {
   const loanCount = await get('SELECT COUNT(DISTINCT loan_id) AS count FROM loans');
   const totalCollected = await get('SELECT SUM(amount) AS total FROM money_collection');
   const totalExpense = await get('SELECT SUM(amount) AS total FROM expenses');
-
   res.render('reports', {
     loanCount: loanCount.count || 0,
     totalCollected: totalCollected.total || 0,
@@ -291,14 +257,9 @@ app.get('/reports', authRequired, async (req, res) => {
   });
 });
 
-// System Users 页面
 app.get('/users', adminOnly, async (req, res) => {
   const users = await all('SELECT * FROM users ORDER BY created_at DESC');
-  res.render('users', {
-    users,
-    user: req.session.user,
-    lang: req.session.lang
-  });
+  res.render('users', { users, user: req.session.user, lang: req.session.lang });
 });
 
 // 启动服务器

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "init": "node init-db.js && node create-admin.js"
+    "init": "node init-db.js && node create-admin.js",
+    "backup": "node backup-db.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
