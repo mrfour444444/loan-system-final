@@ -55,8 +55,13 @@ function adminOnly(req, res, next) {
 
 // 登录页面
 app.get('/login', (req, res) => {
-  res.render('login', { error: null, lang: req.session.lang });
+  res.render('login', {
+    error: null,
+    lang: req.session.lang,
+    csrfToken: req.csrfToken() // ✅ 这里是关键
+  });
 });
+
 
 // 登录尝试限制（基于 IP）
 const loginAttempts = {};
