@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= lang === 'zh' ? '编辑贷款' : 'Edit Loan' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border: none;
+      padding: 10px 20px;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: #fff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><%= lang === 'zh' ? '编辑贷款记录' : 'Edit Loan Record' %></h2>
+
+    <% if (error) { %>
+      <p style="color:red;"><%= error %></p>
+    <% } %>
+    <% if (message) { %>
+      <p style="color:green;"><%= message %></p>
+    <% } %>
+
+    <form action="/loan/edit/<%= loan.id %>" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '客户姓名' : 'Customer Name' %></label>
+        <input type="text" class="form-control" value="<%= loan.customer_name %>" disabled/>
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '期数' : 'Sequence No.' %></label>
+        <input type="text" class="form-control" value="<%= loan.sequence_no %>" disabled/>
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '到期日' : 'Due Date' %></label>
+        <input type="date" name="due_date" class="form-control" value="<%= loan.due_date %>" required/>
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '金额' : 'Amount' %></label>
+        <input type="number" name="amount" class="form-control" value="<%= loan.amount %>" required/>
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '备注' : 'Remarks' %></label>
+        <input type="text" name="remarks" class="form-control" value="<%= loan.remarks %>" />
+      </div>
+
+      <button type="submit" class="btn-primary"><%= lang === 'zh' ? '保存修改' : 'Save Changes' %></button>
+      <a href="/installment" class="btn-secondary" style="margin-left: 10px;"><%= lang === 'zh' ? '取消' : 'Cancel' %></a>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,38 +1,94 @@
-<h2 class="page-title">Due Installments</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= lang === 'zh' ? '到期分期记录' : 'Installment Records' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    table.dataTable thead {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-primary, .btn-danger {
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 13px;
+      text-decoration: none;
+      color: white;
+    }
+    .btn-primary {
+      background-color: #007bff;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><%= lang === 'zh' ? '到期分期记录' : 'Loan Installments' %></h2>
 
-<div class="table-container">
-  <table class="dataTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Customer</th>
-        <th>Agent</th>
-        <th>Collector</th>
-        <th>Loan Date</th>
-        <th>Due Date</th>
-        <th>Purpose</th>
-        <th>Sequence No.</th>
-        <th>Amount</th>
-        <th>Collected</th>
-        <th>Remarks</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% loans.forEach(loan => { %>
+    <% if (message) { %>
+      <p style="color:green;"><%= message %></p>
+    <% } %>
+
+    <table id="loanTable" class="display">
+      <thead>
         <tr>
-          <td><%= loan.id %></td>
-          <td><%= loan.customer_name %></td>
-          <td><%= loan.agent %></td>
-          <td><%= loan.collector %></td>
-          <td><%= loan.loan_date %></td>
-          <td><%= loan.due_date %></td>
-          <td><%= loan.purpose %></td>
-          <td><%= loan.sequence_no %></td>
-          <td><%= loan.amount.toFixed(2) %></td>
-          <td><%= loan.collected_amount?.toFixed(2) || '0.00' %></td>
-          <td><%= loan.remarks %></td>
+          <th>ID</th>
+          <th><%= lang === 'zh' ? '客户' : 'Customer' %></th>
+          <th><%= lang === 'zh' ? '期数' : 'Sequence No.' %></th>
+          <th><%= lang === 'zh' ? '到期日' : 'Due Date' %></th>
+          <th><%= lang === 'zh' ? '金额' : 'Amount' %></th>
+          <th><%= lang === 'zh' ? '收款人' : 'Collector' %></th>
+          <th><%= lang === 'zh' ? '备注' : 'Remarks' %></th>
+          <% if (user.role === 'admin') { %><th><%= lang === 'zh' ? '操作' : 'Action' %></th><% } %>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% loans.forEach(loan => { %>
+          <tr>
+            <td><%= loan.id %></td>
+            <td><%= loan.customer_name %></td>
+            <td><%= loan.sequence_no %></td>
+            <td><%= loan.due_date %></td>
+            <td><%= loan.amount %></td>
+            <td><%= loan.loan_collector %></td>
+            <td><%= loan.remarks %></td>
+            <% if (user.role === 'admin') { %>
+              <td>
+                <a href="/loan/edit/<%= loan.id %>" class="btn-primary">Edit</a>
+                <form action="/loan/delete/<%= loan.id %>" method="POST" style="display:inline;" onsubmit="return confirm('Delete this loan?');">
+                  <button type="submit" class="btn-danger">Delete</button>
+                </form>
+              </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('#loanTable').DataTable();
+    });
+  </script>
+</body>
+</html>

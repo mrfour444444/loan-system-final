@@ -1,42 +1,118 @@
-<h2 class="page-title">Advance Money</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= lang === 'zh' ? '预支记录' : 'Advance Money' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <style>
+    body {
+      background: #f1f1f1;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .form-section {
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .btn-submit {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+    }
+    table.dataTable thead {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><%= lang === 'zh' ? '添加预支记录' : 'Add Advance Money' %></h2>
 
-<div class="form-inline">
-  <form action="/advance-money" method="POST" class="add-form">
-    <select name="customer_id" required>
-      <% advances.forEach(row => { %>
-        <% if (!row.added) { %>
-          <option value="<%= row.customer_id %>"><%= row.customer_name %></option>
-        <% } %>
-      <% }) %>
-    </select>
-    <input type="number" name="amount" step="0.01" placeholder="Amount" required />
-    <input type="date" name="date" required />
-    <input type="text" name="remarks" placeholder="Remarks (optional)" />
-    <button type="submit" class="btn-primary">Add</button>
-  </form>
-</div>
+    <% if (message) { %>
+      <p style="color:green;"><%= message %></p>
+    <% } %>
+    <% if (error) { %>
+      <p style="color:red;"><%= error %></p>
+    <% } %>
 
-<div class="table-container">
-  <table class="dataTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Customer</th>
-        <th>Amount</th>
-        <th>Date</th>
-        <th>Remarks</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% advances.forEach(row => { %>
+    <form action="/advance-money" method="POST" class="form-section">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '客户' : 'Customer' %></label>
+        <select name="customer_id" class="form-control" required>
+          <% customers.forEach(c => { %>
+            <option value="<%= c.id %>"><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '金额' : 'Amount' %></label>
+        <input type="number" name="amount" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '原因' : 'Reason' %></label>
+        <input type="text" name="reason" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '备注' : 'Remarks' %></label>
+        <input type="text" name="remarks" class="form-control" />
+      </div>
+
+      <button type="submit" class="btn-submit"><%= lang === 'zh' ? '提交记录' : 'Submit' %></button>
+    </form>
+
+    <hr/>
+    <h3><%= lang === 'zh' ? '预支记录列表' : 'Advance Records' %></h3>
+
+    <table id="advanceTable" class="display">
+      <thead>
         <tr>
-          <td><%= row.id %></td>
-          <td><%= row.customer_name %></td>
-          <td><%= row.amount.toFixed(2) %></td>
-          <td><%= row.date %></td>
-          <td><%= row.remarks || '-' %></td>
+          <th>ID</th>
+          <th><%= lang === 'zh' ? '客户' : 'Customer' %></th>
+          <th><%= lang === 'zh' ? '金额' : 'Amount' %></th>
+          <th><%= lang === 'zh' ? '原因' : 'Reason' %></th>
+          <th><%= lang === 'zh' ? '备注' : 'Remarks' %></th>
+          <th><%= lang === 'zh' ? '日期' : 'Date' %></th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% records.forEach(r => { %>
+          <tr>
+            <td><%= r.id %></td>
+            <td><%= r.customer_name %></td>
+            <td><%= r.amount %></td>
+            <td><%= r.reason %></td>
+            <td><%= r.remarks %></td>
+            <td><%= r.created_at %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('#advanceTable').DataTable();
+    });
+  </script>
+</body>
+</html>

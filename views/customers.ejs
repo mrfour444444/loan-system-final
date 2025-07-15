@@ -1,33 +1,83 @@
-<h2 class="page-title">Customer List</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= lang === 'zh' ? '客户管理' : 'Customer Management' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .btn-add {
+      background-color: #28a745;
+      color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      float: right;
+      margin-bottom: 15px;
+    }
+    table.dataTable thead {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>
+      <%= lang === 'zh' ? '客户管理' : 'Customer Management' %>
+      <% if (user.role === 'admin') { %>
+        <a href="/customers/add" class="btn-add"><%= lang === 'zh' ? '添加客户' : 'Add Customer' %></a>
+      <% } %>
+    </h2>
 
-<div class="form-inline">
-  <form action="/customers" method="POST" class="add-form">
-    <input type="text" name="name" placeholder="Customer Name" required />
-    <input type="email" name="email" placeholder="Email" />
-    <input type="text" name="phone" placeholder="Phone" />
-    <button type="submit" class="btn-primary">Add Customer</button>
-  </form>
-</div>
+    <% if (message) { %>
+      <p style="color:green;"><%= message %></p>
+    <% } %>
 
-<div class="table-container">
-  <table class="dataTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% customers.forEach(c => { %>
+    <table id="customerTable" class="display">
+      <thead>
         <tr>
-          <td><%= c.id %></td>
-          <td><%= c.name %></td>
-          <td><%= c.email || '-' %></td>
-          <td><%= c.phone || '-' %></td>
+          <th>ID</th>
+          <th><%= lang === 'zh' ? '姓名' : 'Name' %></th>
+          <th><%= lang === 'zh' ? '电话' : 'Phone' %></th>
+          <th><%= lang === 'zh' ? '地址' : 'Address' %></th>
+          <th><%= lang === 'zh' ? '原始代理人' : 'Original Agent' %></th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% customers.forEach(c => { %>
+          <tr>
+            <td><%= c.id %></td>
+            <td><%= c.name %></td>
+            <td><%= c.phone %></td>
+            <td><%= c.address %></td>
+            <td><%= c.original_agent %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('#customerTable').DataTable();
+    });
+  </script>
+</body>
+</html>

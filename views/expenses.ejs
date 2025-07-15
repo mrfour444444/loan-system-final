@@ -1,36 +1,112 @@
-<h2 class="page-title">Expenses</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= lang === 'zh' ? '支出记录' : 'Expenses' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <style>
+    body {
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .form-section {
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .btn-submit {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+    }
+    table.dataTable thead {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2><%= lang === 'zh' ? '添加支出记录' : 'Add Expense' %></h2>
 
-<div class="form-inline">
-  <form action="/expenses" method="POST" class="add-form">
-    <input type="text" name="name" placeholder="Expense Name" required />
-    <input type="number" name="amount" step="0.01" placeholder="Amount" required />
-    <input type="date" name="date" required />
-    <input type="text" name="remarks" placeholder="Remarks (optional)" />
-    <button type="submit" class="btn-primary">Add Expense</button>
-  </form>
-</div>
+    <% if (message) { %>
+      <p style="color:green;"><%= message %></p>
+    <% } %>
+    <% if (error) { %>
+      <p style="color:red;"><%= error %></p>
+    <% } %>
 
-<div class="table-container">
-  <table class="dataTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Amount</th>
-        <th>Date</th>
-        <th>Remarks</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% expenses.forEach(e => { %>
+    <form action="/expenses" method="POST" class="form-section">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '日期' : 'Date' %></label>
+        <input type="date" name="date" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '项目名称' : 'Item Name' %></label>
+        <input type="text" name="item" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '金额' : 'Amount' %></label>
+        <input type="number" name="amount" step="0.01" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label><%= lang === 'zh' ? '备注' : 'Remarks' %></label>
+        <input type="text" name="remarks" class="form-control" />
+      </div>
+
+      <button type="submit" class="btn-submit"><%= lang === 'zh' ? '提交' : 'Submit' %></button>
+    </form>
+
+    <hr/>
+    <h3><%= lang === 'zh' ? '支出记录列表' : 'Expense Records' %></h3>
+
+    <table id="expensesTable" class="display">
+      <thead>
         <tr>
-          <td><%= e.id %></td>
-          <td><%= e.name %></td>
-          <td><%= e.amount.toFixed(2) %></td>
-          <td><%= e.date %></td>
-          <td><%= e.remarks || '-' %></td>
+          <th>ID</th>
+          <th><%= lang === 'zh' ? '日期' : 'Date' %></th>
+          <th><%= lang === 'zh' ? '项目' : 'Item' %></th>
+          <th><%= lang === 'zh' ? '金额' : 'Amount' %></th>
+          <th><%= lang === 'zh' ? '备注' : 'Remarks' %></th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% expenses.forEach(e => { %>
+          <tr>
+            <td><%= e.id %></td>
+            <td><%= e.date %></td>
+            <td><%= e.item %></td>
+            <td><%= e.amount %></td>
+            <td><%= e.remarks %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('#expensesTable').DataTable();
+    });
+  </script>
+</body>
+</html>

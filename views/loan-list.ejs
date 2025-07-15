@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title><%= lang === 'zh' ? '收款管理' : 'Money Collection' %></title>
+  <title><%= lang === 'zh' ? '贷款列表' : 'Loan List' %></title>
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -14,23 +14,15 @@
       font-family: Arial, sans-serif;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 40px auto;
       background: #fff;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .btn-pay {
-      background-color: #28a745;
-      color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .btn-pay:hover {
-      background-color: #218838;
+    h2 {
+      margin-bottom: 30px;
     }
     table.dataTable thead {
       background-color: #007bff;
@@ -40,26 +32,22 @@
 </head>
 <body>
   <div class="container">
-    <h2><%= lang === 'zh' ? '收款管理' : 'Money Collection' %></h2>
+    <h2><%= lang === 'zh' ? '贷款列表（管理员）' : 'Loan Records (Admin View)' %></h2>
 
     <% if (message) { %>
       <p style="color:green;"><%= message %></p>
     <% } %>
-    <% if (error) { %>
-      <p style="color:red;"><%= error %></p>
-    <% } %>
 
-    <table id="collectionTable" class="display">
+    <table id="loanTable" class="display">
       <thead>
         <tr>
           <th>ID</th>
           <th><%= lang === 'zh' ? '客户' : 'Customer' %></th>
-          <th><%= lang === 'zh' ? '期数' : 'Seq' %></th>
-          <th><%= lang === 'zh' ? '到期日' : 'Due Date' %></th>
-          <th><%= lang === 'zh' ? '应收金额' : 'Amount' %></th>
-          <th><%= lang === 'zh' ? '已收金额' : 'Collected' %></th>
+          <th><%= lang === 'zh' ? 'Agent' : 'Agent' %></th>
+          <th><%= lang === 'zh' ? '金额' : 'Amount' %></th>
+          <th><%= lang === 'zh' ? '期数' : 'Terms' %></th>
+          <th><%= lang === 'zh' ? '开始日期' : 'Start Date' %></th>
           <th><%= lang === 'zh' ? '备注' : 'Remarks' %></th>
-          <th><%= lang === 'zh' ? '操作' : 'Action' %></th>
         </tr>
       </thead>
       <tbody>
@@ -67,18 +55,11 @@
           <tr>
             <td><%= loan.id %></td>
             <td><%= loan.customer_name %></td>
-            <td><%= loan.sequence_no %></td>
-            <td><%= loan.due_date %></td>
+            <td><%= loan.agent_name %></td>
             <td><%= loan.amount %></td>
-            <td><%= loan.collected_amount || 0 %></td>
+            <td><%= loan.term_count %></td>
+            <td><%= loan.start_date %></td>
             <td><%= loan.remarks %></td>
-            <td>
-              <form action="/money-collection/<%= loan.id %>" method="POST" style="display:inline;">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <input type="number" name="collected_amount" step="0.01" min="0" max="<%= loan.amount %>" required style="width: 80px;" />
-                <button type="submit" class="btn-pay"><%= lang === 'zh' ? '收款' : 'Collect' %></button>
-              </form>
-            </td>
           </tr>
         <% }) %>
       </tbody>
@@ -87,7 +68,7 @@
 
   <script>
     $(document).ready(function() {
-      $('#collectionTable').DataTable();
+      $('#loanTable').DataTable();
     });
   </script>
 </body>
