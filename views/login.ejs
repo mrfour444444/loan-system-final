@@ -87,4 +87,24 @@
         <input type="checkbox" name="remember" id="remember" />
         <label for="remember"><%= lang === 'zh' ? '记住我' : 'Remember Me' %></label>
       </div>
-      <button type="submit" class="btn-primary"><%= lan
+      <button type="submit" class="btn-primary">
+        <%= lang === 'zh' ? '登录' : 'Login' %>
+      </button>
+    </form>
+
+    <div class="text-right" style="margin-top:10px;">
+      <a href="/forgot-password"><%= lang === 'zh' ? '忘记密码？' : 'Forgot password?' %></a>
+    </div>
+
+    <div class="lang-switch">
+      <form action="/change-language" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <select name="lang" onchange="this.form.submit()">
+          <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
+          <option value="zh" <%= lang === 'zh' ? 'selected' : '' %>>中文</option>
+        </select>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
