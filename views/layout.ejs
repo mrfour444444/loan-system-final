@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loan System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+  <% if (user) { %>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-title">LOAN SYSTEM</div>
+      <ul class="sidebar-menu">
+        <li><a href="/due-installments">Due Installments</a></li>
+        <li><a href="/search">Search</a></li>
+        <% if (user.role === 'admin') { %>
+          <li><a href="/loan">Loan</a></li>
+          <li><a href="/users">System Users</a></li>
+        <% } %>
+        <li><a href="/customers">Customers</a></li>
+        <li><a href="/advance-money">Advance Money</a></li>
+        <li><a href="/money-collection">Money Collection</a></li>
+        <li><a href="/expenses">Expenses</a></li>
+        <li><a href="/reports">Reports</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <form action="/change-language" method="POST">
+            <select name="lang" onchange="this.form.submit()">
+              <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
+              <option value="zh" <%= lang === 'zh' ? 'selected' : '' %>>中文</option>
+            </select>
+          </form>
+        </div>
+        <div class="topbar-right">
+          <span class="user-info">Hi, <%= user.username %></span>
+          <div class="dropdown">
+            <button class="user-circle"><%= user.username.charAt(0).toUpperCase() %></button>
+            <div class="dropdown-content">
+              <a href="/change-password">Change Password</a>
+              <a href="/logout">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <%- body %>
+      </div>
+    </div>
+  </div>
+  <% } else { %>
+    <%- body %>
+  <% } %>
+
+  <script>
+    $(document).ready(function () {
+      $('table.dataTable').DataTable();
+    });
+  </script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= lang %>">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Login</title>
+  <title><%= lang === 'zh' ? '系统登录' : 'System Login' %></title>
   <link rel="stylesheet" href="/css/style.css" />
   <style>
     body {
@@ -26,6 +26,16 @@
     }
     .form-group {
       margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
     .btn-primary {
       background-color: #007bff;
@@ -50,6 +60,7 @@
     .remember-me {
       display: flex;
       align-items: center;
+      margin-bottom: 15px;
     }
     .remember-me input {
       margin-right: 5px;
@@ -62,33 +73,18 @@
     <% if (error) { %>
       <p style="color:red;text-align:center;"><%= error %></p>
     <% } %>
-    <form action="/admin-login" method="POST">
+    <form action="/login" method="POST">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-group">
         <label><%= lang === 'zh' ? '电子邮件' : 'Email' %></label>
-        <input type="email" name="email" class="form-control" required/>
+        <input type="email" name="email" class="form-control" required />
       </div>
       <div class="form-group">
         <label><%= lang === 'zh' ? '密码' : 'Password' %></label>
-        <input type="password" name="password" class="form-control" required/>
+        <input type="password" name="password" class="form-control" required />
       </div>
-      <div class="form-group remember-me">
+      <div class="remember-me">
         <input type="checkbox" name="remember" id="remember" />
         <label for="remember"><%= lang === 'zh' ? '记住我' : 'Remember Me' %></label>
       </div>
-      <button type="submit" class="btn-primary"><%= lang === 'zh' ? '登录' : 'Login' %></button>
-    </form>
-    <div class="text-right mt-2">
-      <a href="/forgot-password"><%= lang === 'zh' ? '忘记密码？' : 'Forgot Password?' %></a>
-    </div>
-    <div class="lang-switch">
-      <form action="/change-language" method="POST">
-        <select name="lang" onchange="this.form.submit()">
-          <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
-          <option value="zh" <%= lang === 'zh' ? 'selected' : '' %>>中文</option>
-        </select>
-      </form>
-    </div>
-  </div>
-</body>
-</html>
+      <button type="submit" class="btn-primary"><%= lan
